@@ -12,7 +12,7 @@ namespace :deploy do
   %w[start stop restart].each do |command|
     desc "#{command} DNS server."
     task command do
-      on roles(:primario,:secundario) do
+      on roles(:all) do
         execute "sudo systemctl #{command} #{fetch(:application)}"
       end
     end
