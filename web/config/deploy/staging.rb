@@ -22,6 +22,7 @@
 # role :db,  %w{deploy@example.com}
 role :prestashop, %w{deploy@www.blackartdsgns.com}, my_property: :my_value
 role :wordpress, %w{deploy@www.blackartdsgns.com}, my_property: :my_value
+role :db, %w{deploy@www.blackartdsgns.com}, my_property: :my_value
 
 
 # Configuration

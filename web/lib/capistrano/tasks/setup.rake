@@ -2,10 +2,13 @@ namespace :setup do
     desc "Install packages"
     task :install_packages do
         on roles(:wordpress) do
-            execute "sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq php php7.0 php-pear php7.0-mysql php-zip libapache2-mod-php7.0 mysql-server mysql-client"
+            execute "sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq php php7.0 php-pear php7.0-mysql php-zip libapache2-mod-php7.0"
         end
         on roles(:prestashop) do
-            execute "sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq php7.0 php7.0-mysql php7.0-gd php7.0-curl php-ssh2 libssh2-1 mysql-client mysql-server"
+            execute "sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq php7.0 php7.0-mysql php7.0-gd php7.0-curl php-ssh2 libssh2-1"
+        end
+        on roles(:db) do
+            execute "sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq mysql-client mysql-server"
         end
     end
     
@@ -28,18 +31,20 @@ namespace :setup do
        on roles(:prestashop) do
             execute "sudo cp -f #{current_path}/prestashop/prestashop.conf /etc/apache2/sites-available/"
              execute "sudo cp -Rf #{current_path}/prestashop/prestashop /var/www/html/"
+             execute "sudo a2enmod rewrite"
         end
     end
     
     task :configure_permissions do
-        on roles(:all) do
-            execute "sudo chown www-data:www-data -Rf /var/www/"
+        on roles(:prestashop) do
+            execute "sudo chown www-data.www-data -Rf /var/www/html/prestashop"
         end
     end
     
     task :configure_database do
-        on roles (:all) do
-            execute "sudo mysql -u root --password= <<< \"CREATE DATABASE IF NOT EXISTS prestaShop; GRANT ALL PRIVILEGES ON prestaShop.* TO ‘vortex’@‘localhost’ IDENTIFIED BY '1234';\""
+        on roles (:db) do
+            execute "sudo mysql -u root --password= < #{current_path}/prestashop/prestaShop.sql"
+            execute "sudo mysql -u root --password= < #{current_path}/wordpress/prestaShop.sql"
         end
     end
     
