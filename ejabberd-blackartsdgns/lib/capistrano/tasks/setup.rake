@@ -14,6 +14,24 @@ namespace :setup do
              execute "sudo cp #{current_path}/xmppExample/ejabberd.yml /etc/ejabberd/ejabberd.yml"
         end
     end
+    
+    task :configure_dns do
+        on roles(:staging) do
+            execute "echo \"nameserver 192.168.1.12\" | sudo tee /etc/resolv.conf"
+            execute "echo \"nameserver 192.168.1.13\" | sudo tee -a /etc/resolv.conf"
+        end
+    end
+    
+    task :configure_users do
+        on roles(:blackartdsgns) do
+            execute "sudo ejabberdctl register jon blackartdsgns.com 1234"
+        end
+        on roles(:example) do
+            execute "sudo ejabberdctl register estrella example.com 1234"
+        end
+    end
     after 'deploy:finished', 'setup:install_packages'
     after 'setup:install_packages', 'setup:copy_config'
+    after 'setup:copy_config', 'setup:configure_dns'
+    after 'setup:configure_dns', 'setup:configure_users'
 end

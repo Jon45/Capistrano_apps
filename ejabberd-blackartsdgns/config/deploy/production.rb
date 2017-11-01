@@ -20,7 +20,8 @@
 # role :app, %w{deploy@example.com}, my_property: :my_value
 # role :web, %w{user1@primary.com user2@additional.com}, other_property: :other_value
 # role :db,  %w{deploy@example.com}
-
+role :blackartdsgns, %w{deploy@jabber-gw.blackartdsgns.com}, my_property: :my_value
+role :example, %w{deploy@jabber-gw.example.com}, my_property: :my_value
 
 
 # Configuration
