@@ -36,9 +36,16 @@ namespace :setup do
             execute "sudo mysql -u root --password= < #{current_path}/mysql/mailserver.sql"
         end
     end
+    task :configure_dns do
+        on roles(:staging) do
+            execute "echo \"nameserver 192.168.1.12\" | sudo tee /etc/resolv.conf"
+            execute "echo \"nameserver 192.168.1.13\" | sudo tee -a /etc/resolv.conf"
+        end
+    end
     after 'deploy:finished', 'setup:install_packages'
     after 'setup:install_packages', 'setup:create_sym_links'
     after 'setup:create_sym_links', 'setup:copy_certificates'
     after 'setup:copy_certificates', 'setup:create_tables'
     after 'setup:create_tables', 'setup:create_userandgroup'
+    after 'setup:create_userandgroup', 'setup:configure_dns'
 end
