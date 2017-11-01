@@ -13,6 +13,9 @@ namespace :setup do
         on roles(:example) do
              execute "sudo cp #{current_path}/xmppExample/ejabberd.yml /etc/ejabberd/ejabberd.yml"
         end
+        on roles(:blackartdsgns,:example) do
+            execute "sudo systemctl restart #{fetch(:application)}"
+        end
     end
     
     task :configure_dns do
@@ -24,10 +27,10 @@ namespace :setup do
     
     task :configure_users do
         on roles(:blackartdsgns) do
-            execute "sudo ejabberdctl register jon blackartdsgns.com 1234"
+            execute "sudo ejabberdctl check_account jon blackartdsgns.com; if [ $? -ne 0 ] ; then sudo ejabberdctl register jon blackartdsgns.com \'1234\'; fi"
         end
         on roles(:example) do
-            execute "sudo ejabberdctl register estrella example.com 1234"
+            execute "sudo ejabberdctl check_account estrella example.com; if [ $? -ne 0 ] ; then sudo ejabberdctl register estrella example.com \'1234\'; fi"
         end
     end
     after 'deploy:finished', 'setup:install_packages'
