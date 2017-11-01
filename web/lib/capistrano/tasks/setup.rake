@@ -48,6 +48,19 @@ namespace :setup do
         end
     end
     
+    task :change_config do
+        on roles(:staging) do
+            on roles(:prestashop) do
+                execute "sudo sed -i 's/prestashop.blackartdsgns.com/prestashop-staging.blackartdsgns.com/g' /etc/apache2/sites-available/prestashop.conf"
+                execute "sudo mysql -u root --password= < #{current_path}/prestashop/prestashop-staging.sql"
+            end
+            on roles (:wordpress) do
+                execute "sudo sed -i 's/www.blackartdsgns.com/www-staging.blackartdsgns.com/g' /etc/apache2/sites-available/wordpress.conf"
+                execute "sudo mysql -u root --password= < #{current_path}/wordpress/wordpress-staging.sql"
+            end
+        end
+    end
+    
     task :enable_site do
         on roles (:prestashop) do
             execute "sudo a2ensite prestashop.conf"
@@ -56,9 +69,12 @@ namespace :setup do
             execute "sudo a2ensite wordpress.conf"
         end
     end
+
+    
     after 'deploy:finished', 'setup:install_packages'
     after 'setup:install_packages', 'setup:copy_config'
     after 'setup:copy_config', 'setup:configure_permissions'
     after 'setup:configure_permissions', 'setup:configure_database'
-    after 'setup:configure_database', 'setup:enable_site'
+    after 'setup:configure_database', 'setup:change_config'
+    after 'setup:change_config', 'setup:enable_site'
 end
